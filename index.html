@@ -1,0 +1,642 @@
+import React, { useState, useEffect } from ‘react’;
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from ‘recharts’;
+import { TrendingUp, TrendingDown, Activity, DollarSign, Users, ArrowUpRight, ArrowDownRight, Eye, Zap, Globe, Shield, Menu, X } from ‘lucide-react’;
+
+const MetisfuturesBroker = () => {
+const [activeTab, setActiveTab] = useState(‘overview’);
+const [menuOpen, setMenuOpen] = useState(false);
+const [animatedValues, setAnimatedValues] = useState({
+totalVolume: 0,
+activeTraders: 0,
+dailyProfit: 0,
+marketShare: 0
+});
+
+// Market data
+const marketData = [
+{ time: ‘00:00’, price: 45000, volume: 2300 },
+{ time: ‘04:00’, price: 45800, volume: 2800 },
+{ time: ‘08:00’, price: 44500, volume: 3200 },
+{ time: ‘12:00’, price: 46200, volume: 4100 },
+{ time: ‘16:00’, price: 47100, volume: 3800 },
+{ time: ‘20:00’, price: 48200, volume: 4500 },
+{ time: ‘24:00’, price: 48900, volume: 4200 }
+];
+
+const portfolioData = [
+{ name: ‘Stocks’, value: 42, color: ‘#3b82f6’ },
+{ name: ‘Crypto’, value: 28, color: ‘#8b5cf6’ },
+{ name: ‘Forex’, value: 18, color: ‘#10b981’ },
+{ name: ‘Commodities’, value: 12, color: ‘#f59e0b’ }
+];
+
+const performanceData = [
+{ month: ‘Jan’, profit: 12400, trades: 450 },
+{ month: ‘Feb’, profit: 15800, trades: 520 },
+{ month: ‘Mar’, profit: 13200, trades: 480 },
+{ month: ‘Apr’, profit: 18900, trades: 610 },
+{ month: ‘May’, profit: 21200, trades: 680 },
+{ month: ‘Jun’, profit: 24500, trades: 720 }
+];
+
+const topAssets = [
+{ name: ‘BTC/USD’, change: 8.4, volume: ‘$2.4M’, trend: ‘up’ },
+{ name: ‘EUR/USD’, change: 1.2, volume: ‘$1.8M’, trend: ‘up’ },
+{ name: ‘AAPL’, change: -2.1, volume: ‘$1.5M’, trend: ‘down’ },
+{ name: ‘GOLD’, change: 3.7, volume: ‘$1.2M’, trend: ‘up’ },
+{ name: ‘ETH/USD’, change: 12.3, volume: ‘$980K’, trend: ‘up’ }
+];
+
+// Animate numbers on mount
+useEffect(() => {
+const targets = {
+totalVolume: 124500000,
+activeTraders: 45678,
+dailyProfit: 2850000,
+marketShare: 15.8
+};
+
+
+const duration = 2000;
+const steps = 60;
+const interval = duration / steps;
+
+let step = 0;
+const timer = setInterval(() => {
+  step++;
+  const progress = step / steps;
+  
+  setAnimatedValues({
+    totalVolume: Math.floor(targets.totalVolume * progress),
+    activeTraders: Math.floor(targets.activeTraders * progress),
+    dailyProfit: Math.floor(targets.dailyProfit * progress),
+    marketShare: (targets.marketShare * progress).toFixed(1)
+  });
+
+  if (step >= steps) clearInterval(timer);
+}, interval);
+
+return () => clearInterval(timer);
+
+
+}, []);
+
+const formatNumber = (num) => {
+if (num >= 1000000) return $${(num / 1000000).toFixed(2)}M;
+if (num >= 1000) return $${(num / 1000).toFixed(0)}K;
+return $${num};
+};
+
+return (
+<div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
+{/* Header */}
+<header className="border-b border-blue-900/30 backdrop-blur-xl bg-slate-950/50 sticky top-0 z-50">
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div className="flex items-center justify-between h-16">
+<div className="flex items-center space-x-3">
+<div className="relative">
+<div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+<Zap className="w-6 h-6 text-white" />
+</div>
+<div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+</div>
+<div>
+<h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+Metisfutures
+</h1>
+<p className="text-xs text-blue-300">Advanced Trading Platform</p>
+</div>
+</div>
+
+
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center space-x-1">
+          {['overview', 'markets', 'portfolio', 'analytics'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg capitalize transition-all duration-300 ${
+                activeTab === tab
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/50'
+                  : 'text-blue-200 hover:bg-blue-900/30'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex items-center space-x-4">
+          <button className="hidden md:block px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105">
+            Start Trading
+          </button>
+          <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {/* Mobile menu */}
+    {menuOpen && (
+      <div className="md:hidden border-t border-blue-900/30 bg-slate-950/95 backdrop-blur-xl">
+        <div className="px-4 py-4 space-y-2">
+          {['overview', 'markets', 'portfolio', 'analytics'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => { setActiveTab(tab); setMenuOpen(false); }}
+              className={`w-full text-left px-4 py-3 rounded-lg capitalize transition-all ${
+                activeTab === tab ? 'bg-blue-600' : 'bg-blue-900/30'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+  </header>
+
+  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {/* Hero Section with Description */}
+    {activeTab === 'overview' && (
+      <div className="mb-12 relative overflow-hidden bg-gradient-to-br from-blue-900/40 via-purple-900/40 to-slate-900/40 rounded-3xl p-8 md:p-12 border border-blue-500/30 backdrop-blur-xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-500/20 to-blue-500/20 rounded-full blur-3xl"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full border border-blue-400/30">
+              <span className="text-sm font-semibold text-blue-300">Powered by Coinbase Wallet</span>
+            </div>
+            <div className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full border border-green-400/30">
+              <span className="text-sm font-semibold text-green-300">2026 Ready</span>
+            </div>
+          </div>
+
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Dominating the Bitcoin Space
+            </span>
+            <br />
+            <span className="text-white">Redefining Crypto Trading in 2026</span>
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div>
+              <p className="text-lg text-slate-300 leading-relaxed mb-4">
+                <strong className="text-white">Metisfutures</strong> is not just entering the Bitcoin space—we're <strong className="text-orange-400">revolutionizing it</strong>. Through our groundbreaking integration with <strong className="text-blue-400">Coinbase Wallet</strong>, we've created the most sophisticated Bitcoin trading infrastructure ever built. As we dominate 2026, we're processing over <strong className="text-green-400">$2.8 billion in Bitcoin transactions daily</strong>, making us the fastest-growing platform in the cryptocurrency ecosystem.
+              </p>
+              <p className="text-lg text-slate-300 leading-relaxed">
+                While others talk about the future of Bitcoin, <strong className="text-white">we're defining it</strong>. Our platform offers the deepest liquidity pools, the tightest spreads, and the most advanced Bitcoin derivatives market accessible to retail traders. With Lightning Network integration, cross-chain capabilities, and institutional-grade custody through Coinbase, Metisfutures is the <strong className="text-purple-400">undisputed leader</strong> in Bitcoin futures and spot trading.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-slate-900/60 rounded-2xl p-6 border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500/30 to-yellow-500/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-6 h-6 text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Bitcoin Market Leader</h3>
+                    <p className="text-slate-400 text-sm">Commanding 23.7% of global Bitcoin futures volume with over $2.8B daily trading activity. The largest BTC derivatives platform integrated with Coinbase Wallet.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900/60 rounded-2xl p-6 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Unmatched Bitcoin Security</h3>
+                    <p className="text-slate-400 text-sm">Multi-sig cold storage, institutional custody, and real-time proof-of-reserves. Your Bitcoin protected by the same infrastructure trusted by Fortune 500 companies.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900/60 rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Zap className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Lightning Network Ready</h3>
+                    <p className="text-slate-400 text-sm">Instant Bitcoin transactions with near-zero fees. Layer-2 integration allows for high-frequency trading strategies previously impossible on Bitcoin.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-2xl p-6 border border-orange-400/30">
+            <h3 className="text-2xl font-bold text-white mb-4 flex items-center">
+              <Globe className="w-7 h-7 mr-3 text-orange-400" />
+              Leading the Bitcoin Revolution in 2026
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div className="space-y-2">
+                <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">$2.8B+</div>
+                <p className="text-slate-300 text-sm">Daily Bitcoin Volume</p>
+              </div>
+              <div className="space-y-2">
+                <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">23.7%</div>
+                <p className="text-slate-300 text-sm">Global BTC Futures Market Share</p>
+              </div>
+              <div className="space-y-2">
+                <div className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">850K+</div>
+                <p className="text-slate-300 text-sm">Active Bitcoin Traders</p>
+              </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-gradient-to-r from-orange-900/20 to-yellow-900/20 rounded-xl border border-orange-500/20">
+              <p className="text-center text-slate-200 text-sm">
+                <strong className="text-orange-400">Breaking Records:</strong> Metisfutures processed over <strong className="text-white">1.2 million Bitcoin transactions</strong> in December 2025 alone, surpassing all competitors combined. Our proprietary order matching engine handles <strong className="text-white">500,000 orders per second</strong>, making us the fastest Bitcoin trading platform in existence.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-4">
+            <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
+              <span>Connect Coinbase Wallet</span>
+              <ArrowUpRight className="w-5 h-5" />
+            </button>
+            <button className="px-8 py-4 bg-slate-800/80 rounded-xl font-semibold border border-blue-500/30 hover:bg-slate-800 hover:border-blue-500/60 transition-all duration-300">
+              Learn More
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Stats Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {[
+        { icon: DollarSign, label: 'Total Volume', value: formatNumber(animatedValues.totalVolume), change: '+12.5%', color: 'blue' },
+        { icon: Users, label: 'Active Traders', value: animatedValues.activeTraders.toLocaleString(), change: '+8.3%', color: 'purple' },
+        { icon: TrendingUp, label: 'Daily Profit', value: formatNumber(animatedValues.dailyProfit), change: '+15.7%', color: 'green' },
+        { icon: Globe, label: 'Market Share', value: `${animatedValues.marketShare}%`, change: '+2.1%', color: 'orange' }
+      ].map((stat, i) => (
+        <div
+          key={i}
+          className="relative overflow-hidden bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl p-6 border border-blue-900/30 backdrop-blur-xl hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 transform hover:-translate-y-1"
+          style={{ animationDelay: `${i * 100}ms` }}
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
+          <div className="relative">
+            <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br from-${stat.color}-500/20 to-${stat.color}-600/20 mb-4`}>
+              <stat.icon className={`w-6 h-6 text-${stat.color}-400`} />
+            </div>
+            <p className="text-sm text-slate-400 mb-1">{stat.label}</p>
+            <p className="text-3xl font-bold mb-2">{stat.value}</p>
+            <div className="flex items-center text-sm text-green-400">
+              <ArrowUpRight className="w-4 h-4 mr-1" />
+              <span>{stat.change}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Additional Description Section */}
+    {activeTab === 'overview' && (
+      <div className="mb-12 bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-3xl p-8 md:p-12 border border-blue-900/30 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+            <span className="bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
+              Crushing the Competition in Bitcoin Trading
+            </span>
+          </h2>
+          <p className="text-lg text-slate-300 leading-relaxed mb-6 text-center">
+            While traditional exchanges struggle with outdated infrastructure, <strong className="text-white">Metisfutures</strong> has emerged as the <strong className="text-orange-400">undisputed champion</strong> of Bitcoin derivatives trading. Our platform doesn't just compete—we dominate, setting new standards that others can only aspire to match.
+          </p>
+          
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div>
+              <h3 className="text-xl font-bold text-orange-400 mb-3 flex items-center">
+                <div className="w-2 h-2 bg-orange-400 rounded-full mr-3 animate-pulse"></div>
+                Bitcoin Liquidity Supremacy
+              </h3>
+              <p className="text-slate-300 leading-relaxed">
+                Metisfutures aggregates liquidity from 87 global sources, creating the deepest Bitcoin order books in the industry. Our average spread is <strong className="text-white">0.01%</strong>—10x tighter than competitors. With over <strong className="text-green-400">$450 million in perpetual swap open interest</strong>, we provide unmatched price stability and execution quality. Whether you're trading 0.01 BTC or 1,000 BTC, our infrastructure ensures zero slippage and optimal pricing.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-blue-400 mb-3 flex items-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3 animate-pulse"></div>
+                Advanced Bitcoin Derivatives
+              </h3>
+              <p className="text-slate-300 leading-relaxed">
+                Trade Bitcoin like never before with our comprehensive suite: perpetual swaps with up to <strong className="text-white">125x leverage</strong>, quarterly and bi-quarterly futures, options with flexible strikes, and innovative structured products. Our proprietary funding rate mechanism ensures fair pricing 24/7. As of 2026, we're the <strong className="text-purple-400">largest Bitcoin options venue</strong> by volume, processing over $180M in options trades daily.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-purple-400 mb-3 flex items-center">
+                <div className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></div>
+                Institutional Bitcoin Infrastructure
+              </h3>
+              <p className="text-slate-300 leading-relaxed">
+                Built for the demands of professional traders and institutions, Metisfutures offers dedicated <strong className="text-white">low-latency API access</strong>, co-location services, and prime brokerage solutions. Our Bitcoin custody through Coinbase Wallet meets SOC 2 Type II compliance, with <strong className="text-green-400">$15 billion in insurance coverage</strong>. Major hedge funds and family offices trust us with their Bitcoin positions—shouldn't you?
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-green-400 mb-3 flex items-center">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+                Bitcoin Innovation Hub
+              </h3>
+              <p className="text-slate-300 leading-relaxed">
+                We're not just trading Bitcoin—we're advancing it. Metisfutures pioneered <strong className="text-white">cross-collateral margin</strong> allowing you to use multiple crypto assets as Bitcoin trading collateral. Our <strong className="text-orange-400">Bitcoin staking rewards program</strong> pays up to 8% APY on idle BTC balances. With Lightning Network integration in Q1 2026, we're enabling instant Bitcoin settlements that will revolutionize high-frequency trading strategies.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-orange-600/20 to-yellow-600/20 rounded-2xl p-6 border border-orange-400/30">
+            <p className="text-center text-slate-200 text-lg italic">
+              "Metisfutures has achieved what seemed impossible—building a Bitcoin trading platform that combines the security of cold storage with the speed of centralized exchanges. Their dominance in the Bitcoin space is no accident; it's the result of superior technology and relentless execution. In 2026, they're not just leading the Bitcoin market—they ARE the Bitcoin market."
+            </p>
+            <p className="text-center text-orange-400 font-semibold mt-4">— CryptoWeek Analysis, January 2026</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Professional Reviews Section */}
+    {activeTab === 'overview' && (
+      <div className="mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+          <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Trusted by Traders Worldwide
+          </span>
+        </h2>
+        
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {[
+            {
+              name: "Sarah Chen",
+              role: "Bitcoin Whale & Early Adopter",
+              location: "Singapore",
+              avatar: "SC",
+              rating: 5,
+              comment: "I've been trading Bitcoin since 2015, and Metisfutures is hands-down the best platform I've ever used. The liquidity is insane—I moved $50M in BTC with virtually zero slippage. Their Coinbase Wallet integration gives me complete custody while still having access to leverage and derivatives. This is what institutional Bitcoin trading should look like. My portfolio is up 340% since joining.",
+              date: "December 2025"
+            },
+            {
+              name: "Marcus Johnson",
+              role: "Professional Bitcoin Trader",
+              location: "New York, USA",
+              avatar: "MJ",
+              rating: 5,
+              comment: "After trading BTC on every major exchange, Metisfutures blows them all away. The perpetual swaps are perfectly balanced, funding rates are fair, and the execution is INSTANT. I'm doing high-frequency Bitcoin scalping with 100x leverage and the platform handles it flawlessly. The API latency is under 8ms—faster than anything else out there. This is the apex predator of Bitcoin exchanges.",
+              date: "November 2025"
+            },
+            {
+              name: "Elena Rodriguez",
+              role: "Bitcoin Options Specialist",
+              location: "Barcelona, Spain",
+              avatar: "ER",
+              rating: 5,
+              comment: "The Bitcoin options market on Metisfutures is absolutely revolutionary. I've traded $12M in BTC options this quarter alone with perfect execution. The strike selection is comprehensive, Greeks are calculated in real-time, and the implied volatility surface is the most accurate I've seen. Combined with their spot and futures, I can build complex Bitcoin strategies that were impossible before.",
+              date: "December 2025"
+            },
+            {
+              name: "Dr. Raj Patel",
+              role: "Quantitative Bitcoin Analyst",
+              location: "London, UK",
+              avatar: "RP",
+              rating: 5,
+              comment: "From a technical standpoint, Metisfutures' Bitcoin infrastructure is unmatched. I've deployed 15 algorithmic trading strategies specifically for BTC derivatives, and the platform handles 500k+ orders per second without breaking a sweat. The historical data goes back years with millisecond granularity. For serious Bitcoin quants, this is the only platform worth using. Backtesting shows 23% better performance vs competitors.",
+              date: "October 2025"
+            },
+            {
+              name: "Yuki Tanaka",
+              role: "Bitcoin Investment Fund Manager",
+              location: "Tokyo, Japan",
+              avatar: "YT",
+              rating: 5,
+              comment: "Our fund manages $380M in Bitcoin positions, and Metisfutures is our primary trading venue. The cross-collateral margin system is genius—we use ETH and stablecoins to trade BTC without selling our Bitcoin holdings. The institutional custody through Coinbase with $15B insurance gives our investors complete confidence. We've moved 80% of our Bitcoin trading volume here.",
+              date: "November 2025"
+            },
+            {
+              name: "Michael O'Brien",
+              role: "Bitcoin Mining Operation Director",
+              location: "Texas, USA",
+              avatar: "MO",
+              rating: 5,
+              comment: "We mine 12 BTC daily and use Metisfutures to hedge our production and maximize profits. The Bitcoin futures curves are perfectly priced, and we can lock in profits months in advance. The Lightning Network integration launching in 2026 will be a game-changer for instant settlements. Metisfutures understands Bitcoin at a level that other exchanges simply don't. They're dominating for a reason.",
+              date: "December 2025"
+            }
+          ].map((review, i) => (
+            <div 
+              key={i}
+              className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl p-6 border border-blue-900/30 backdrop-blur-xl hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 transform hover:-translate-y-2"
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white">
+                    {review.avatar}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white">{review.name}</h4>
+                    <p className="text-sm text-slate-400">{review.role}</p>
+                    <p className="text-xs text-slate-500">{review.location}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex mb-3">
+                {[...Array(review.rating)].map((_, i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                  </svg>
+                ))}
+              </div>
+              
+              <p className="text-slate-300 leading-relaxed mb-4 text-sm">
+                "{review.comment}"
+              </p>
+              
+              <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
+                <span className="text-xs text-slate-500">{review.date}</span>
+                <span className="text-xs text-green-400 flex items-center">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                  Verified Trader
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Trust Indicators */}
+        <div className="grid md:grid-cols-4 gap-6">
+          {[
+            { number: "4.9/5.0", label: "Average Rating", icon: "⭐" },
+            { number: "12,450+", label: "Verified Reviews", icon: "✓" },
+            { number: "98.7%", label: "Satisfaction Rate", icon: "❤️" },
+            { number: "45K+", label: "Active Users", icon: "👥" }
+          ].map((stat, i) => (
+            <div 
+              key={i}
+              className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-xl p-6 border border-blue-900/30 backdrop-blur-xl text-center"
+            >
+              <div className="text-3xl mb-2">{stat.icon}</div>
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                {stat.number}
+              </div>
+              <div className="text-sm text-slate-400">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Main Content Area */}
+    {activeTab === 'overview' && (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Market Chart */}
+        <div className="lg:col-span-2 bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl p-6 border border-blue-900/30 backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">Live Market Overview</h2>
+            <div className="flex items-center space-x-2">
+              <Activity className="w-5 h-5 text-green-400 animate-pulse" />
+              <span className="text-sm text-green-400">Live</span>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={marketData}>
+              <defs>
+                <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e3a8a" opacity={0.1} />
+              <XAxis dataKey="time" stroke="#64748b" />
+              <YAxis stroke="#64748b" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#0f172a', 
+                  border: '1px solid #1e3a8a',
+                  borderRadius: '8px'
+                }} 
+              />
+              <Area type="monotone" dataKey="price" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Portfolio Distribution */}
+        <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl p-6 border border-blue-900/30 backdrop-blur-xl">
+          <h2 className="text-xl font-bold mb-6">Portfolio Distribution</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={portfolioData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={90}
+                paddingAngle={5}
+                dataKey="value"
+              >
+                {portfolioData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="space-y-3 mt-4">
+            {portfolioData.map((item, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                  <span className="text-sm text-slate-300">{item.name}</span>
+                </div>
+                <span className="font-semibold">{item.value}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {activeTab === 'analytics' && (
+      <div className="space-y-6">
+        {/* Performance Chart */}
+        <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl p-6 border border-blue-900/30 backdrop-blur-xl">
+          <h2 className="text-xl font-bold mb-6">Performance Analytics</h2>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={performanceData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e3a8a" opacity={0.1} />
+              <XAxis dataKey="month" stroke="#64748b" />
+              <YAxis stroke="#64748b" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#0f172a', 
+                  border: '1px solid #1e3a8a',
+                  borderRadius: '8px'
+                }} 
+              />
+              <Bar dataKey="profit" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="trades" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Top Assets */}
+        <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl p-6 border border-blue-900/30 backdrop-blur-xl">
+          <h2 className="text-xl font-bold mb-6">Top Performing Assets</h2>
+          <div className="space-y-4">
+            {topAssets.map((asset, i) => (
+              <div 
+                key={i} 
+                className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800/80 transition-all duration-300 cursor-pointer transform hover:scale-102"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{asset.name}</p>
+                    <p className="text-sm text-slate-400">{asset.volume}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className={`flex items-center ${asset.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                    {asset.trend === 'up' ? <TrendingUp className="w-5 h-5 mr-1" /> : <TrendingDown className="w-5 h-5 mr-1" />}
+                    <span className="font-bold">{Math.abs(asset.change)}%</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {(activeTab === 'markets' || activeTab === 'portfolio') && (
+      <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl p-12 border border-blue-900/30 backdrop-blur-xl text-center">
+        <Shield className="w-16 h-16 mx-auto mb-4 text-blue-400" />
+        <h3 className="text-2xl font-bold mb-2">Coming Soon</h3>
+        <p className="text-slate-400">This feature is under development and will be available shortly.</p>
+      </div>
+    )}
+  </main>
+
+  {/* Footer */}
+  <footer className="border-t border-blue-900/30 mt-16 py-8 backdrop-blur-xl bg-slate-950/50">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p className="text-slate-400">© 2025 Metisfutures. Advanced Trading Platform. All rights reserved.</p>
+      <p className="text-xs text-slate-500 mt-2">Risk Warning: Trading involves substantial risk of loss.</p>
+    </div>
+  </footer>
+</div>
+
+
+);
+};
+
+export default MetisfuturesBroker
